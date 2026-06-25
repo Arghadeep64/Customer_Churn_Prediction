@@ -9,7 +9,7 @@ def get_connection():
 
         user="root",
 
-        password="deep05",
+        password="YOUR_PASSWORD",
 
         database="churn_db"
 

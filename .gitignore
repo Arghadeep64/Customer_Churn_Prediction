@@ -133,10 +133,5 @@ dmypy.json
 Thumbs.db
 
 # Project specific
-churn_model.pkl
-*.csv
 *.db
 uploads/
-screenshots/
-reports/generated_reports/
-reports/charts/

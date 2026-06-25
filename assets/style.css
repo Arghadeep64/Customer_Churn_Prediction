@@ -1,0 +1,411 @@
+:root{
+
+--primary:#6366f1;
+--secondary:#8b5cf6;
+
+--bg1:#f5f7ff;
+--bg2:#eef2ff;
+
+--card:#ffffff;
+
+--text:#111827;
+--text2:#64748b;
+
+}
+
+
+/* GLOBAL */
+
+*{
+
+margin:0;
+padding:0;
+
+box-sizing:border-box;
+
+}
+
+
+body{
+
+font-family:'Segoe UI',sans-serif;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+#f7f8ff,
+
+#eef2ff,
+
+#fdfdff
+
+);
+
+min-height:100vh;
+
+color:var(--text);
+
+}
+
+
+
+.container-fluid{
+
+padding:25px;
+
+}
+
+
+
+/* HEADINGS */
+
+h1{
+
+font-size:42px;
+
+font-weight:800;
+
+text-align:center;
+
+color:#4f46e5;
+
+}
+
+
+h2,h3,h4{
+
+font-weight:700;
+
+color:#111827;
+
+}
+
+
+label{
+
+font-size:18px;
+
+font-weight:600;
+
+color:#1f2937;
+
+}
+
+
+
+/* CARDS */
+
+.card{
+
+background:white;
+
+border:none;
+
+border-radius:22px;
+
+box-shadow:
+
+0 4px 15px rgba(0,0,0,.05);
+
+padding:5px;
+
+transition:.25s;
+
+}
+
+
+.card:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+
+0 8px 25px rgba(99,102,241,.10);
+
+}
+
+
+
+
+/* METRIC CARDS */
+
+.metric-card{
+
+padding:25px;
+
+}
+
+
+.metric-card h3{
+
+font-size:36px;
+
+color:#4f46e5;
+
+}
+
+
+.metric-card p{
+
+font-size:14px;
+
+color:#64748b;
+
+}
+
+
+
+
+/* BUTTONS */
+
+.btn{
+
+border:none;
+
+border-radius:14px;
+
+font-weight:700;
+
+padding:12px;
+
+background:
+
+linear-gradient(
+
+90deg,
+
+#6366f1,
+
+#8b5cf6
+
+);
+
+color:white !important;
+
+transition:.25s;
+
+}
+
+
+.btn:hover{
+
+opacity:.9;
+
+transform:translateY(-2px);
+
+}
+
+
+
+/* INPUTS */
+
+.form-control{
+
+background:white !important;
+
+border:1px solid #dbe2ea !important;
+
+border-radius:14px;
+
+padding:12px;
+
+font-weight:500;
+
+color:#111827 !important;
+
+box-shadow:none !important;
+
+}
+
+
+
+.form-control:focus{
+
+border-color:#6366f1 !important;
+
+box-shadow:none !important;
+
+}
+
+
+
+/* SELECTS */
+
+.form-select{
+
+background:white !important;
+
+border:1px solid #dbe2ea !important;
+
+border-radius:14px;
+
+padding:12px;
+
+font-weight:500;
+
+color:#111827 !important;
+
+box-shadow:none !important;
+
+}
+
+
+.form-select:focus{
+
+box-shadow:none !important;
+
+}
+
+
+
+/* OPTION FIX */
+
+select{
+
+background:white !important;
+
+color:#111827 !important;
+
+}
+
+
+option{
+
+background:white !important;
+
+color:#111827 !important;
+
+}
+
+
+
+
+/* TABLE */
+
+.dash-table-container{
+
+border-radius:18px;
+
+overflow:hidden;
+
+box-shadow:
+
+0 4px 15px rgba(0,0,0,.06);
+
+}
+
+
+
+.dash-table-container th{
+
+background:#6366f1;
+
+color:white;
+
+}
+
+
+
+.dash-table-container td{
+
+background:white;
+
+color:#111827;
+
+}
+
+
+
+
+/* MODAL */
+
+.modal-content{
+
+border:none;
+
+border-radius:20px;
+
+background:white;
+
+}
+
+
+
+/* PLOTLY */
+
+.js-plotly-plot{
+
+background:white;
+
+border-radius:20px;
+
+overflow:hidden;
+
+}
+
+
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar{
+
+width:8px;
+
+}
+
+
+::-webkit-scrollbar-thumb{
+
+background:#6366f1;
+
+border-radius:10px;
+
+}
+
+
+::-webkit-scrollbar-track{
+
+background:#eef2ff;
+
+}
+.Select-control{
+
+border-radius:16px !important;
+
+border:none !important;
+
+box-shadow:none !important;
+
+background:white !important;
+
+}
+
+
+.Select-menu-outer{
+
+background:white !important;
+
+border-radius:16px !important;
+
+}
+
+
+.VirtualizedSelectOption{
+
+background:white !important;
+
+color:#111827 !important;
+
+}
+
+
+.VirtualizedSelectFocusedOption{
+
+background:#eef2ff !important;
+
+color:#111827 !important;
+
+}

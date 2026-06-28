@@ -1,5 +1,4 @@
 CREATE DATABASE IF NOT EXISTS churn_db;
-
 USE churn_db;
 
 

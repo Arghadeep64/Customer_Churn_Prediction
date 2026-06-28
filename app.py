@@ -42,6 +42,7 @@ app.layout = html.Div([
 
 register_callbacks(app)
 
+server = app.server
 
 if __name__ == "__main__":
 

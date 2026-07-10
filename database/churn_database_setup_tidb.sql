@@ -1,4 +1,6 @@
-USE defaultdb;
+CREATE DATABASE IF NOT EXISTS churn_database;
+
+USE churn_database;
 
 
 

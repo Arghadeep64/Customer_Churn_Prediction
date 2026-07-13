@@ -1,5 +1,7 @@
 from dash.exceptions import PreventUpdate
 from dash import Input, Output, State, html, no_update
+import pandas as pd
+import plotly.graph_objects as go
 
 from dashboard.layouts import layout
 from dashboard.login import login_layout
@@ -13,11 +15,276 @@ from database.queries import (
     register_user,
     check_login,
     delete_selected_predictions,
-    delete_all_predictions
+    delete_all_predictions,
+    get_prediction_analytics_history
 )
 
 
 current_user = None
+
+
+CHURN_LABEL = "Customer Will Churn"
+STAY_LABEL = "Customer Will Stay"
+
+
+def empty_analytics_figure(title, message):
+
+    figure = go.Figure()
+
+    figure.add_annotation(
+
+        text=message,
+        showarrow=False,
+        x=0.5,
+        y=0.5,
+        xref="paper",
+        yref="paper",
+        font={"size": 16, "color": "#64748b"}
+
+    )
+
+    figure.update_layout(
+
+        title={"text": title, "x": 0.5},
+        template="plotly_white",
+        margin={"l": 30, "r": 30, "t": 55, "b": 30},
+        xaxis={"visible": False},
+        yaxis={"visible": False}
+
+    )
+
+    return figure
+
+
+def build_prediction_analytics_figures(dataframe):
+
+    if dataframe is None or dataframe.empty:
+
+        return (
+
+            empty_analytics_figure(
+                "Churn vs Non-Churn",
+                "No prediction data available yet."
+            ),
+
+            empty_analytics_figure(
+                "Churn Trend Over Time",
+                "No prediction trend data available yet."
+            ),
+
+            empty_analytics_figure(
+                "Confidence Distribution",
+                "No confidence data available yet."
+            )
+
+        )
+
+
+    predictions = dataframe.get("prediction", pd.Series(dtype="object"))
+    churn_count = (predictions == CHURN_LABEL).sum()
+    stay_count = (predictions == STAY_LABEL).sum()
+
+    if churn_count + stay_count:
+
+        distribution_figure = go.Figure(
+
+            data=[
+
+                go.Pie(
+
+                    labels=["Churn", "Stay"],
+                    values=[churn_count, stay_count],
+                    hole=0.55,
+                    textinfo="label+value+percent",
+                    marker={"colors": ["#ef4444", "#6366f1"]}
+
+                )
+
+            ]
+
+        )
+
+        distribution_figure.update_layout(
+
+            title={"text": "Churn vs Non-Churn", "x": 0.5},
+            template="plotly_white",
+            margin={"l": 20, "r": 20, "t": 55, "b": 20},
+            legend={"orientation": "h", "y": -0.1}
+
+        )
+
+    else:
+
+        distribution_figure = empty_analytics_figure(
+            "Churn vs Non-Churn",
+            "No prediction data available yet."
+        )
+
+
+    trend_data = dataframe.loc[
+
+        predictions.isin([CHURN_LABEL, STAY_LABEL]),
+
+        ["prediction", "prediction_time"]
+
+    ].copy()
+
+    trend_data["prediction_time"] = pd.to_datetime(
+
+        trend_data["prediction_time"],
+        errors="coerce"
+
+    )
+
+    trend_data = trend_data.dropna(subset=["prediction_time"])
+
+    if trend_data.empty:
+
+        trend_figure = empty_analytics_figure(
+            "Churn Trend Over Time",
+            "No prediction trend data available yet."
+        )
+
+    else:
+
+        trend_data["date"] = trend_data["prediction_time"].dt.date
+        trend_counts = trend_data.groupby(
+
+            ["date", "prediction"]
+
+        ).size().unstack(fill_value=0).sort_index()
+
+        trend_figure = go.Figure()
+
+        for label, name, color in [
+            (CHURN_LABEL, "Churn", "#ef4444"),
+            (STAY_LABEL, "Stay", "#6366f1")
+        ]:
+
+            trend_figure.add_trace(
+
+                go.Scatter(
+
+                    x=trend_counts.index,
+                    y=(
+                        trend_counts[label]
+                        if label in trend_counts
+                        else [0] * len(trend_counts)
+                    ),
+                    mode="lines+markers",
+                    name=name,
+                    line={"color": color}
+
+                )
+
+            )
+
+        trend_figure.update_layout(
+
+            title={"text": "Churn Trend Over Time", "x": 0.5},
+            template="plotly_white",
+            margin={"l": 40, "r": 20, "t": 55, "b": 40},
+            xaxis_title="Date",
+            yaxis_title="Predictions",
+            legend={"orientation": "h", "y": -0.2}
+
+        )
+
+
+    confidence_values = dataframe.get("confidence", pd.Series(dtype="object"))
+
+    confidence = pd.to_numeric(
+
+        confidence_values.astype(str).str.strip().str.rstrip("%"),
+        errors="coerce"
+
+    )
+
+    confidence = confidence.where(confidence.isna() | (confidence > 1), confidence * 100)
+    confidence_data = pd.DataFrame({
+        "confidence": confidence,
+        "prediction": predictions
+    })
+    confidence_data = confidence_data.loc[
+        confidence_data["confidence"].between(50, 100)
+        & confidence_data["prediction"].isin([CHURN_LABEL, STAY_LABEL])
+    ]
+
+    if confidence_data.empty:
+
+        confidence_figure = empty_analytics_figure(
+            "Confidence Distribution",
+            "No confidence data available yet."
+        )
+
+    else:
+
+        bins = [50, 60, 70, 80, 90, 101]
+        labels = ["50–60%", "60–70%", "70–80%", "80–90%", "90–100%"]
+        confidence_data["range"] = pd.cut(
+
+            confidence_data["confidence"],
+            bins=bins,
+            labels=labels,
+            right=False,
+            include_lowest=True
+
+        )
+
+        confidence_figure = go.Figure()
+
+        for label, name, color in [
+            (STAY_LABEL, "Stay", "#6366f1"),
+            (CHURN_LABEL, "Churn", "#ef4444")
+        ]:
+
+            counts = (
+                confidence_data.loc[
+                    confidence_data["prediction"] == label,
+                    "range"
+                ]
+                .value_counts()
+                .reindex(labels, fill_value=0)
+            )
+
+            confidence_figure.add_trace(
+
+                go.Bar(
+
+                    x=labels,
+                    y=counts.tolist(),
+                    name=name,
+                    marker_color=color
+
+                )
+
+            )
+
+        confidence_figure.update_layout(
+
+            title={"text": "Confidence Distribution", "x": 0.5},
+            template="plotly_white",
+            margin={"l": 40, "r": 20, "t": 55, "b": 40},
+            xaxis={
+                "title": "Confidence range",
+                "type": "category",
+                "categoryorder": "array",
+                "categoryarray": labels
+            },
+            yaxis={
+                "title": "Predictions",
+                "rangemode": "tozero",
+                "tickmode": "linear",
+                "tick0": 0,
+                "dtick": 1
+            },
+            barmode="group",
+            legend={"orientation": "h", "y": -0.2}
+
+        )
+
+
+    return distribution_figure, trend_figure, confidence_figure
 
 
 def register_callbacks(app):
@@ -314,6 +581,43 @@ def register_callbacks(app):
             ]
 
         )
+
+
+    @app.callback(
+        Output(
+            "prediction_churn_distribution_chart",
+            "figure"
+        ),
+        Output(
+            "prediction_churn_trend_chart",
+            "figure"
+        ),
+        Output(
+            "prediction_confidence_distribution_chart",
+            "figure"
+        ),
+        Input(
+            "prediction_result",
+            "children"
+        ),
+        Input(
+            "history_table",
+            "data"
+        ),
+        Input(
+            "url",
+            "pathname"
+        )
+    )
+    def update_prediction_analytics(
+        prediction_result,
+        history_data,
+        pathname
+    ):
+
+        dataframe = get_prediction_analytics_history()
+
+        return build_prediction_analytics_figures(dataframe)
 
 
     @app.callback(

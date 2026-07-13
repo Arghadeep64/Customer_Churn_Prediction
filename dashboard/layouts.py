@@ -5,6 +5,7 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import joblib
 
 
@@ -86,6 +87,59 @@ contract_fig = px.histogram(
     x='Contract',
 
     title='Contract Distribution'
+
+)
+
+
+def analytics_placeholder(title, message):
+
+    figure = go.Figure()
+
+    figure.add_annotation(
+
+        text=message,
+        showarrow=False,
+        x=0.5,
+        y=0.5,
+        xref="paper",
+        yref="paper",
+        font={"size": 16, "color": "#64748b"}
+
+    )
+
+    figure.update_layout(
+
+        title={"text": title, "x": 0.5},
+        template="plotly_white",
+        margin={"l": 30, "r": 30, "t": 55, "b": 30},
+        xaxis={"visible": False},
+        yaxis={"visible": False}
+
+    )
+
+    return figure
+
+
+churn_distribution_placeholder = analytics_placeholder(
+
+    "Churn vs Non-Churn",
+    "Loading prediction analytics..."
+
+)
+
+
+churn_trend_placeholder = analytics_placeholder(
+
+    "Churn Trend Over Time",
+    "Loading prediction analytics..."
+
+)
+
+
+confidence_distribution_placeholder = analytics_placeholder(
+
+    "Confidence Distribution",
+    "Loading prediction analytics..."
 
 )
 
@@ -319,7 +373,109 @@ layout = dbc.Container([
 
 ),
 
-    history_table()
+    history_table(),
+
+
+    html.Br(),
+
+
+    html.H3(
+
+        "Prediction Analytics (Based on Prediction History)",
+
+        className="text-center"
+
+    ),
+
+
+    dbc.Row([
+
+        dbc.Col(
+
+            dbc.Card(
+
+                dbc.CardBody(
+
+                    dcc.Graph(
+
+                        id="prediction_churn_distribution_chart",
+
+                        figure=churn_distribution_placeholder,
+
+                        style={"height": "360px", "width": "100%"},
+
+                        config={"responsive": True}
+
+                    )
+
+                )
+
+            ),
+
+            md=6
+
+        ),
+
+
+        dbc.Col(
+
+            dbc.Card(
+
+                dbc.CardBody(
+
+                    dcc.Graph(
+
+                        id="prediction_churn_trend_chart",
+
+                        figure=churn_trend_placeholder,
+
+                        style={"height": "360px", "width": "100%"},
+
+                        config={"responsive": True}
+
+                    )
+
+                )
+
+            ),
+
+            md=6
+
+        )
+
+    ]),
+
+
+    html.Br(),
+
+
+    dbc.Row([
+
+        dbc.Col(
+
+            dbc.Card(
+
+                dbc.CardBody(
+
+                    dcc.Graph(
+
+                        id="prediction_confidence_distribution_chart",
+
+                        figure=confidence_distribution_placeholder,
+
+                        style={"height": "360px", "width": "100%"},
+
+                        config={"responsive": True}
+
+                    )
+
+                )
+
+            )
+
+        )
+
+    ])
 
 
 ], fluid=True)

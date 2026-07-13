@@ -168,6 +168,56 @@ def get_prediction_history():
 
     return df
 
+
+def get_prediction_analytics_history():
+
+    connection = None
+
+    try:
+
+        connection = get_connection()
+
+        query = """
+
+        SELECT
+            prediction,
+            confidence,
+            prediction_time
+
+        FROM prediction_history
+
+        """
+
+        return pd.read_sql(
+
+            query,
+
+            connection
+
+        )
+
+
+    except Exception as error:
+
+        print("Unable to load prediction analytics:", type(error).__name__)
+
+        return pd.DataFrame(
+
+            columns=[
+                "prediction",
+                "confidence",
+                "prediction_time"
+            ]
+
+        )
+
+
+    finally:
+
+        if connection is not None:
+
+            connection.close()
+
 def register_user(
 
     username,
